@@ -141,6 +141,10 @@ uv run reviews add .reviews/file.yaml           # Add new activity
 uv run reviews add .reviews/file.yaml C1        # Resolve issue C1
 ```
 
+## Supported by
+
+- [acre](https://github.com/inferaldata/acre) - Terminal code review tool where you and Claude review code together in real time
+
 ## License
 
 MIT
