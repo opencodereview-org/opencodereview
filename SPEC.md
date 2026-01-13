@@ -143,7 +143,7 @@ The core unit. All activities are **immutable** once created (append-only).
 
   # Location (flat or nested)
   file: <path>
-  lines: [[start, end], ...]  # Always [start, end] tuples
+  lines: [[start, end], ...]  # 1-indexed, inclusive ranges
   # Or:
   location:
     file: <path>

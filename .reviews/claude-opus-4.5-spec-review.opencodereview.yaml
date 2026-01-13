@@ -909,3 +909,21 @@ activities:
     lines: [[189, 196]]
     severity: info
 
+  # =============================================================================
+  # RESOLUTIONS
+  # =============================================================================
+
+  - id: C3-resolved
+    created: "2026-01-13T15:49:54Z"
+    category: resolved
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4-5-20251101
+    content: |
+      Added clarification to SPEC.md line 146 that line numbers are 1-indexed
+      with inclusive ranges.
+
+      Changed comment from "Always [start, end] tuples" to "1-indexed, inclusive ranges".
+    addresses: [C3]
+
