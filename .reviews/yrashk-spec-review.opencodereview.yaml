@@ -52,3 +52,38 @@ activities:
       This enables activities to formally reference multiple subjects by name
       (commits, files, patches, other PRs) in a structured, machine-readable way.
     severity: info
+
+  - id: F15
+    created: "2026-01-13T20:33:32Z"
+    category: suggestion
+    author:
+      name: Yurii Rashkovskii
+      email: yrashk@gmail.com
+    content: |
+      **Inline Diff/Patch Content for LLM Context**
+
+      For LLM-based reviewers, the review file should be self-contained.
+      Currently, patch-type subjects reference external diffs (via provider_ref)
+      that require API access to fetch.
+
+      **Suggestion:** Add optional `diff` or `patch` field to subject that
+      embeds the actual diff content inline:
+
+      ```yaml
+      subject:
+        type: patch
+        provider: github-pr
+        provider_ref: "123"
+        diff: |
+          --- a/src/main.py
+          +++ b/src/main.py
+          @@ -42,6 +42,7 @@
+           def process():
+          +    if data is None:
+          +        return
+               handle(data)
+      ```
+
+      This enables LLMs to review code changes without external API access,
+      making reviews truly portable and self-contained.
+    severity: info
