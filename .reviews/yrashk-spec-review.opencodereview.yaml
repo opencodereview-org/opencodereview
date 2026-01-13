@@ -1,0 +1,54 @@
+# OpenCodeReview Specification Review
+# Suggestions and improvements
+version: "0.1"
+subject:
+  type: audit
+  name: "OpenCodeReview Specification Review"
+  url: "https://github.com/opencodereview-org/opencodereview"
+  repo: opencodereview-org/opencodereview
+  commit: "9bd77d82b99b05150f5238244074be0b5a25f03d"
+  scope:
+    - "SPEC.md"
+    - "schema/**"
+
+activities:
+  - id: F14
+    created: "2026-01-13T11:00:00Z"
+    category: suggestion
+    author:
+      name: Yurii Rashkovskii
+      email: yrashk@gmail.com
+    content: |
+      **Activity-Level Subject References**
+
+      Activities lack a formal way to reference subjects (commits, files, patches, PRs).
+      The `subject` schema is only available at root level. Currently must use
+      free-form `content` text to describe what an activity relates to.
+
+      **Suggestion:** Add optional `references` field to activities as a named map
+      of subjects, reusing the existing subject type infrastructure:
+
+      ```yaml
+      - id: some-resolution
+        category: resolved
+        references:
+          fix:
+            type: commit
+            commit: "9bd77d8..."
+          related_pr:
+            type: patch
+            provider: github-pr
+            provider_ref: "456"
+        content: |
+          Fixed in [this commit][fix] by changing the version number.
+          See [related_pr] for additional context.
+        addresses: [original-issue]
+      ```
+
+      Reference names can be used in `content` via markdown reference-link syntax:
+      - `[fix]` - renders as link to the referenced subject
+      - `[display text][fix]` - renders display text as link to the subject
+
+      This enables activities to formally reference multiple subjects by name
+      (commits, files, patches, other PRs) in a structured, machine-readable way.
+    severity: info

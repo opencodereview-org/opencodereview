@@ -1,0 +1,911 @@
+# OpenCodeReview Specification Review
+# Comprehensive analysis of coherence, consistency, and fitness issues
+version: "0.1"
+subject:
+  type: audit
+  name: "OpenCodeReview Specification Review"
+  url: "https://github.com/opencodereview-org/opencodereview"
+  repo: opencodereview-org/opencodereview
+  commit: "9bd77d82b99b05150f5238244074be0b5a25f03d"
+  scope:
+    - "SPEC.md"
+    - "schema/**"
+    - "examples/**"
+    - "linked-data/**"
+
+activities:
+  # =============================================================================
+  # CRITICAL ISSUES
+  # =============================================================================
+
+  - id: C1
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Version Number Contradiction**
+
+      **Location:** SPEC.md line 3 vs examples
+
+      - Spec header says "Version: 1.0 (Draft)"
+      - All examples and schemas use `version: "0.1"`
+      - JSON Schema enforces `"const": "0.1"`
+
+      **Impact:** Fundamental confusion about which version is being specified.
+    file: SPEC.md
+    lines: [[3, 3]]
+    severity: critical
+
+  - id: C1-resolved
+    created: "2026-01-13T10:30:00Z"
+    category: resolved
+    author:
+      name: Yurii Rashkovskii
+      email: yrashk@gmail.com
+    content: |
+      Fixed in commit 9bd77d82b99b05150f5238244074be0b5a25f03d.
+
+      Changed SPEC.md line 3 from `**Version:** 1.0 (Draft)` to `**Version:** 0.1 (Draft)`
+      to align with schemas and examples.
+    addresses: [C1]
+
+  - id: C2
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Flat vs Nested Location Fields Schema Mismatch**
+
+      **Location:** JSON Schema vs XSD vs Examples
+
+      - JSON/YAML examples use flat fields: `file:` and `lines:` directly on activity
+      - XSD only defines nested `<location>` element, rejecting flat fields
+      - JSON Schema allows both simultaneously (overly permissive)
+
+      **Impact:** Valid JSON/YAML documents fail XSD validation. Breaks cross-format validation.
+    severity: critical
+
+  - id: C3
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Line Number Indexing Undefined**
+
+      **Location:** SPEC.md line 146
+
+      - `lines: [[start, end], ...]` documented but indexing not specified
+      - Is it 0-indexed or 1-indexed?
+      - Examples use values like `[[42, 42]]` and `[[45, 48]]` suggesting 1-indexed
+      - Critical for implementations to interpret locations correctly
+
+      **Impact:** Implementations may interpret line numbers differently.
+    file: SPEC.md
+    lines: [[146, 146]]
+    severity: critical
+
+  - id: C4
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Threading Model Undefined**
+
+      **Location:** SPEC.md lines 161-162
+
+      - `replies: [<activity>, ...]` mentioned but semantics unclear:
+        - Tree structure or flat?
+        - How deep can nesting go?
+        - Can replies have their own `supersedes`/`retracts`?
+        - How do nested replies interact with append-only principle?
+
+      **Impact:** Core feature with undefined behavior.
+    file: SPEC.md
+    lines: [[161, 162]]
+    severity: critical
+
+  - id: C5
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **JSON-LD Context Contradicts Spec**
+
+      **Location:** linked-data/context.jsonld vs SPEC.md lines 287-297
+
+      - Spec says `addresses` maps to `schema:mentions`
+      - Context.jsonld uses `ocr:addresses` instead
+      - RDF vocabulary incomplete (~1/3 of properties defined)
+
+      **Impact:** Linked data consumers will get incorrect mappings.
+    file: linked-data/context.jsonld
+    severity: critical
+
+  - id: C6
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Author Type Constraint Missing from XSD**
+
+      **Location:** JSON Schema line 73 vs XSD line 58
+
+      - JSON Schema: `"type": { "enum": ["agent"] }`
+      - XSD: `<xs:element name="type" type="xs:string"/>` (no restriction)
+
+      **Impact:** Invalid author types pass XSD validation.
+    file: schema/opencodereview.xsd
+    lines: [[58, 58]]
+    severity: critical
+
+  # =============================================================================
+  # HIGH SEVERITY ISSUES
+  # =============================================================================
+
+  - id: H1
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Subject Types Undocumented**
+
+      **Location:** SPEC.md line 100 vs lines 115-127
+
+      - Six types listed: `patch`, `commit`, `file`, `directory`, `audit`, `snapshot`
+      - Only `patch`, `file|directory`, and `audit` documented
+      - `commit` and `snapshot` have no field definitions
+    file: SPEC.md
+    lines: [[100, 127]]
+    severity: error
+
+  - id: H2
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Selector Field Completely Unspecified**
+
+      **Location:** SPEC.md line 151
+
+      - `selector: {type: <string>, path: <string>}`
+      - No valid `type` values documented
+      - No `path` format specified (XPath? CSS? JSONPath?)
+      - No examples use this feature
+    file: SPEC.md
+    lines: [[151, 151]]
+    severity: error
+
+  - id: H3
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **"Addresses" vs "Supersedes" Semantic Confusion**
+
+      **Location:** SPEC.md lines 158-159, 208-210, 233-235
+
+      - Both fields reference other activities
+      - `supersedes` used for "edits"
+      - `addresses` used for "resolution" and "retraction"
+      - Distinction not clearly explained
+    file: SPEC.md
+    lines: [[158, 159]]
+    severity: error
+
+  - id: H4
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Conditions Field Undefined**
+
+      **Location:** SPEC.md line 168
+
+      - `conditions: [<string>, ...]  # For verdicts`
+      - What values are valid?
+      - When should they be used?
+      - No examples demonstrate this
+    file: SPEC.md
+    lines: [[168, 168]]
+    severity: error
+
+  - id: H5
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Provider Reference Format Undefined**
+
+      **Location:** SPEC.md line 116
+
+      - `provider_ref: <string>  # PR number, MR ID, etc.`
+      - Is it just a number? Full URL? `owner/repo#123`?
+      - Different providers need different formats
+    file: SPEC.md
+    lines: [[116, 117]]
+    severity: error
+
+  - id: H6
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Checksum Algorithm Format Undefined**
+
+      **Location:** SPEC.md line 108
+
+      - `checksum: <algo:hash>`
+      - What algorithms? sha256? md5? blake3?
+      - Separator: colon or equals?
+      - How computed (with/without line endings)?
+    file: SPEC.md
+    lines: [[108, 108]]
+    severity: error
+
+  - id: H7
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **XSD Missing Commit Hash Pattern**
+
+      **Location:** JSON Schema line 42 vs XSD line 162
+
+      - JSON Schema: `"pattern": "^[a-f0-9]{40}$"`
+      - XSD: `<xs:string/>` (no pattern)
+      - Invalid hashes pass XSD validation
+    file: schema/opencodereview.xsd
+    lines: [[162, 162]]
+    severity: error
+
+  - id: H8
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **XML Content Loses Markdown Formatting**
+
+      **Location:** XML examples vs YAML examples
+
+      - YAML preserves multi-line markdown in `content`
+      - XML serializes to single-line, losing formatting
+      - Should use CDATA sections
+    severity: error
+
+  # =============================================================================
+  # MEDIUM SEVERITY ISSUES
+  # =============================================================================
+
+  - id: M1
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Location Field Ambiguity**
+
+      **Location:** SPEC.md lines 144-151
+
+      - Both flat and nested formats shown
+      - No precedence rule if both present
+      - No mutual exclusivity defined
+    file: SPEC.md
+    lines: [[144, 151]]
+    severity: warning
+
+  - id: M2
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **"Deleted" Field Semantics Unclear**
+
+      **Location:** SPEC.md line 153
+
+      - `deleted: <bool>  # True if commenting on removed line`
+      - How does this interact with `lines` ranges?
+      - Patch-type only or all reviews?
+    file: SPEC.md
+    lines: [[153, 153]]
+    severity: warning
+
+  - id: M3
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Content Field Optionality Unclear**
+
+      **Location:** SPEC.md line 142 vs examples
+
+      - Is `content` required for all activities?
+      - Examples show `resolved`, `assigned`, `merged` without content
+      - Inconsistent even within same example files
+    file: SPEC.md
+    lines: [[142, 142]]
+    severity: warning
+
+  - id: M4
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Severity Field Category Applicability**
+
+      **Location:** SPEC.md line 167 vs examples
+
+      - `severity: info | warning | error | critical`
+      - Which categories use severity?
+      - Examples show it on `issue`, sometimes `suggestion`, rarely `note`
+    file: SPEC.md
+    lines: [[167, 167]]
+    severity: warning
+
+  - id: M5
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Mentions @ Prefix Convention**
+
+      **Location:** SPEC.md line 166 vs examples
+
+      - Docs show: `# @agent, @human, @name, @team`
+      - Examples use: `["@security-team"]`
+      - Is `@` prefix required or convention?
+    file: SPEC.md
+    lines: [[166, 166]]
+    severity: warning
+
+  - id: M6
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Activity ID Generation Unspecified**
+
+      **Location:** SPEC.md line 134
+
+      - "Auto-generated, omit when creating"
+      - UUID version not specified (v4? v5? deterministic?)
+      - Conflict handling for merges undefined
+    file: SPEC.md
+    lines: [[134, 134]]
+    severity: warning
+
+  - id: M7
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Datetime Format Mismatch**
+
+      **Location:** JSON Schema vs XSD
+
+      - JSON Schema: RFC 3339 (`format: "date-time"`)
+      - XSD: W3C XML Schema dateTime
+      - Subtle differences may cause round-trip issues
+    severity: warning
+
+  - id: M8
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Email Validation Missing from XSD**
+
+      **Location:** JSON Schema line 72 vs XSD line 57
+
+      - JSON Schema: `"format": "email"`
+      - XSD: plain `<xs:string/>`
+    file: schema/opencodereview.xsd
+    lines: [[57, 57]]
+    severity: warning
+
+  - id: M9
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Version Constraint Missing from XSD**
+
+      **Location:** JSON Schema line 12 vs XSD line 12
+
+      - JSON Schema: `"const": "0.1"`
+      - XSD: accepts any string
+    file: schema/opencodereview.xsd
+    lines: [[12, 12]]
+    severity: warning
+
+  - id: M10
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **XML Array Wrapper Inconsistency**
+
+      **Location:** XML examples
+
+      - `mentions` → `<mention>` wrapper
+      - `addresses` → `<id>` wrapper
+      - `conditions` → `<condition>` wrapper
+      - `scope` → `<pattern>` wrapper
+      - No documented pattern
+    severity: warning
+
+  - id: M11
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Provider Enum Mismatch**
+
+      **Location:** JSON Schema line 51 vs XSD line 169
+
+      - JSON Schema restricts to: `["github-pr", "gitlab-mr", "gerrit", "phabricator", "diff"]`
+      - XSD allows any string
+    file: schema/opencodereview.xsd
+    lines: [[169, 169]]
+    severity: warning
+
+  - id: M12
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **RDF Vocabulary Incorrect Class Hierarchy**
+
+      **Location:** linked-data/vocab.ttl lines 44-102
+
+      - Activity categories defined as `a ocr:Activity` (instances)
+      - Should be `rdfs:subClassOf ocr:Activity` (subclasses)
+    file: linked-data/vocab.ttl
+    lines: [[44, 102]]
+    severity: warning
+
+  # =============================================================================
+  # LOW SEVERITY ISSUES
+  # =============================================================================
+
+  - id: L1
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Pending Verdict Undefined**
+
+      **Location:** SPEC.md line 182
+
+      - `pending` listed as verdict category
+      - No explanation of when to use vs other verdicts
+    file: SPEC.md
+    lines: [[182, 182]]
+    severity: info
+
+  - id: L2
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Context Field Usage**
+
+      **Location:** SPEC.md line 169
+
+      - `context: <string>  # Code snippet`
+      - How long? Exact copy or formatted?
+      - Update when file changes?
+    file: SPEC.md
+    lines: [[169, 169]]
+    severity: info
+
+  - id: L3
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Path Format Unspecified**
+
+      **Location:** SPEC.md line 123
+
+      - `path: <path>`
+      - Absolute or relative to repo?
+      - Always `/` separators or native?
+    file: SPEC.md
+    lines: [[123, 123]]
+    severity: info
+
+  - id: L4
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No Maximum Constraints on Arrays**
+
+      **Location:** Both schemas
+
+      - Activities array unlimited
+      - No protection against DoS via massive files
+    severity: info
+
+  - id: L5
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No Backward Compatibility Guidance**
+
+      **Location:** SPEC.md
+
+      - How to handle future versions?
+      - Strict or lenient parsing?
+      - Unknown fields policy?
+    file: SPEC.md
+    severity: info
+
+  - id: L6
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Nested Replies Depth Unlimited**
+
+      **Location:** Both schemas
+
+      - No limit on reply nesting depth
+      - Could create deeply nested structures
+    severity: info
+
+  - id: L7
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Settings Schema Divergence**
+
+      **Location:** JSON Schema vs XSD for agent_context.settings
+
+      - JSON Schema: specific keys (`auto_respond`, `require_mention`, `model_hints`)
+      - XSD: `<xs:anyType/>` (accepts anything)
+    severity: info
+
+  - id: L8
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **UUID Format Support Varies**
+
+      **Location:** JSON Schema line 110
+
+      - Uses `"format": "uuid"` (draft 2020-12)
+      - Some JSON Schema tools may not support this
+    file: schema/opencodereview.schema.json
+    lines: [[110, 110]]
+    severity: info
+
+  # =============================================================================
+  # FITNESS ISSUES (Missing Features/Examples)
+  # =============================================================================
+
+  - id: F1
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No `agent_context` Examples**
+
+      **Location:** SPEC.md lines 184-197
+
+      - Feature fully specified but never demonstrated
+      - Critical for AI agent integration
+    file: SPEC.md
+    lines: [[184, 197]]
+    severity: info
+
+  - id: F2
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No `metadata` Examples**
+
+      **Location:** SPEC.md line 86
+
+      - Custom extension mechanism undocumented in practice
+    file: SPEC.md
+    lines: [[86, 86]]
+    severity: info
+
+  - id: F3
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No `commit` Subject Type Examples**
+
+      **Location:** examples/
+
+      - Zero examples of `commit` type reviews
+      - Subject type is documented but unused
+    severity: info
+
+  - id: F4
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No `snapshot` Subject Type Examples**
+
+      **Location:** examples/
+
+      - Zero examples of `snapshot` type reviews
+      - Subject type is documented but unused
+    severity: info
+
+  - id: F5
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No Non-GitHub Provider Examples**
+
+      **Location:** examples/
+
+      - Only `github-pr` demonstrated
+      - No GitLab, Gerrit, Phabricator, or diff examples
+    severity: info
+
+  - id: F6
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No `selector` Usage Examples**
+
+      **Location:** examples/
+
+      - Semantic code reference feature never shown
+    severity: info
+
+  - id: F7
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Limited `supersedes` Examples**
+
+      **Location:** examples/
+
+      - Only in lifecycle.yaml (YAML only)
+      - No JSON or XML examples
+    severity: info
+
+  - id: F8
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Limited `retract` Examples**
+
+      **Location:** examples/
+
+      - Only in lifecycle.yaml
+      - Core feature needs dedicated example
+    severity: info
+
+  - id: F9
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No Nested Replies in JSON/XML Examples**
+
+      **Location:** examples/
+
+      - `replies` only demonstrated in one YAML file
+      - JSON/XML serialization of nested replies not shown
+    severity: info
+
+  - id: F10
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Merge Algorithm Underspecified**
+
+      **Location:** SPEC.md lines 214-222
+
+      - Activity ordering after merge undefined
+      - Duplicate `supersedes` handling undefined
+      - Edge cases not covered
+    file: SPEC.md
+    lines: [[214, 222]]
+    severity: info
+
+  - id: F11
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Missing Conflict Resolution**
+
+      **Location:** SPEC.md line 219
+
+      - "Same id with different content = conflict (shouldn't happen with UUIDs)"
+      - Provides no actual resolution mechanism
+    file: SPEC.md
+    lines: [[219, 219]]
+    severity: info
+
+  - id: F12
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **No File Encoding Guidance**
+
+      **Location:** SPEC.md line 44
+
+      - Claims "Encoding-Agnostic"
+      - No UTF-8 recommendation
+      - Cross-format encoding not addressed
+    file: SPEC.md
+    lines: [[44, 44]]
+    severity: info
+
+  - id: F13
+    created: "2026-01-13T09:00:00Z"
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: claude-opus-4.5
+    content: |
+      **Agent Instructions Format Undefined**
+
+      **Location:** SPEC.md lines 189-196
+
+      - What format for instructions? Markdown?
+      - Can instructions override spec behavior?
+      - How should agents parse them?
+    file: SPEC.md
+    lines: [[189, 196]]
+    severity: info
+
