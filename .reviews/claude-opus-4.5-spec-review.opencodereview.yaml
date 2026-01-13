@@ -927,3 +927,21 @@ activities:
       Changed comment from "Always [start, end] tuples" to "1-indexed, inclusive ranges".
     addresses: [C3]
 
+  - id: F13-comment-1
+    created: "2026-01-13T15:52:29Z"
+    category: question
+    author:
+      name: Yurii Rashkovskii
+      email: yrashk@gmail.com
+    content: |
+      Building on this: there's not just the format of instructions to consider,
+      but also different types of instructions. For example:
+
+      - Format/output instructions (how to structure responses)
+      - Project context (what the project is about, architecture)
+      - Guidelines (coding standards, review policies)
+
+      How should we structure/segment these different instruction types?
+      Should `instructions` be a structured object rather than a plain string?
+    addresses: [F13]
+
