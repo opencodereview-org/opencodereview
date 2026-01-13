@@ -69,6 +69,7 @@ activities:
 - [SPEC.md](SPEC.md) - Full specification
 - [examples/](examples/) - Example files in all formats
 - [schema/](schema/) - JSON Schema and XSD for validation
+- [.reviews/](.reviews/) - Real-world reviews of this project (dogfooding!)
 
 ## Key Concepts
 
@@ -128,12 +129,14 @@ JSON files can optionally include `@context` for JSON-LD/RDF compatibility.
 
 ## Viewing Reviews
 
+Try it on this repo's own reviews:
+
 ```bash
 uv sync
 uv run reviews list .reviews
 uv run reviews list .reviews --filter open --full
-uv run reviews show .reviews/file.yaml --full
-uv run reviews show .reviews/file.yaml --id C1
+uv run reviews show .reviews/claude-opus-4.5-spec-review.opencodereview.yaml --full
+uv run reviews show .reviews/claude-opus-4.5-spec-review.opencodereview.yaml --id C3
 uv run reviews add .reviews/file.yaml           # Add new activity
 uv run reviews add .reviews/file.yaml C1        # Resolve issue C1
 ```
