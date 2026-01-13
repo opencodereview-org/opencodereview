@@ -614,3 +614,121 @@ def assert_activities_equal(a1, a2) -> None:
     assert len(a1.replies) == len(a2.replies)
     for r1, r2 in zip(a1.replies, a2.replies):
         assert_activities_equal(r1, r2)
+
+
+class TestCDATASerialization:
+    """Test CDATA wrapping in XML serialization."""
+
+    def test_cdata_for_content_with_special_chars(self, tmp_path: Path):
+        """Content with <, >, & should be wrapped in CDATA."""
+        from opencodereview import Review, Comment, dump
+
+        review = Review(
+            activities=[
+                Comment(category="note", content="Use <code> tags & more"),
+            ]
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        content = xml_file.read_text()
+
+        # Should use CDATA
+        assert "<![CDATA[" in content
+        assert "Use <code> tags & more" in content
+        # Should NOT have escaped entities
+        assert "&lt;code&gt;" not in content
+        assert "&amp;" not in content
+
+    def test_no_cdata_for_plain_text(self, tmp_path: Path):
+        """Content without special chars should not use CDATA."""
+        from opencodereview import Review, Comment, dump
+
+        review = Review(
+            activities=[
+                Comment(category="note", content="Plain text without special chars"),
+            ]
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        content = xml_file.read_text()
+
+        # Should NOT use CDATA
+        assert "<![CDATA[" not in content
+        assert "<content>Plain text without special chars</content>" in content
+
+    def test_cdata_roundtrip(self, tmp_path: Path):
+        """Content with special chars should survive round-trip."""
+        from opencodereview import Review, Comment, dump, load
+
+        original_content = "Check if x < 10 && y > 5 using <code>if</code>"
+        review = Review(
+            activities=[
+                Comment(category="note", content=original_content),
+            ]
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        restored = load(xml_file)
+
+        assert restored.activities[0].content == original_content
+
+    def test_cdata_for_agent_context_instructions(self, tmp_path: Path):
+        """Instructions field in agent_context should use CDATA when needed."""
+        from opencodereview import Review, AgentContext, dump
+
+        review = Review(
+            agent_context=AgentContext(
+                instructions="Focus on <security> issues & performance"
+            )
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        content = xml_file.read_text()
+
+        assert "<![CDATA[" in content
+        assert "Focus on <security> issues & performance" in content
+
+    def test_cdata_for_context_field(self, tmp_path: Path):
+        """Context field should use CDATA when needed."""
+        from opencodereview import Review, Comment, dump
+
+        review = Review(
+            activities=[
+                Comment(
+                    category="note",
+                    content="See context",
+                    context="Code: if (x < 10 && y > 5) { ... }",
+                ),
+            ]
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        content = xml_file.read_text()
+
+        # The context field should use CDATA
+        assert "if (x < 10 && y > 5)" in content
+
+    def test_multiple_activities_with_cdata(self, tmp_path: Path):
+        """Multiple activities with special chars should all use CDATA."""
+        from opencodereview import Review, Comment, dump, load
+
+        review = Review(
+            activities=[
+                Comment(category="note", content="First <tag>"),
+                Comment(category="suggestion", content="Second & third"),
+                Comment(category="issue", content="Plain text"),
+            ]
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        restored = load(xml_file)
+
+        assert restored.activities[0].content == "First <tag>"
+        assert restored.activities[1].content == "Second & third"
+        assert restored.activities[2].content == "Plain text"

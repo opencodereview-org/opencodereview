@@ -1,6 +1,7 @@
 """I/O functions for loading and saving OpenCodeReview files."""
 
 import json
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import TextIO
@@ -8,6 +9,10 @@ from typing import TextIO
 import yaml
 
 from .models import Review
+
+
+# Elements whose text content should be wrapped in CDATA if it contains special chars
+CDATA_ELEMENTS = {"content", "instructions", "diff", "context"}
 
 
 def _exclude_empty(data: dict) -> dict:
@@ -154,17 +159,19 @@ def _xml_element_to_dict(elem: ET.Element) -> dict:
             if child.text and child.text.strip():
                 # Strip leading/trailing whitespace but preserve internal structure
                 value = child.text.strip()
-                # Convert booleans, keep everything else as strings
-                # (Pydantic will coerce types during validation)
-                if value.lower() == "true":
-                    result[tag] = True
-                elif value.lower() == "false":
-                    result[tag] = False
-                else:
-                    # Preserve trailing newline if original had one (for multiline content)
-                    if child.text.rstrip(" \t").endswith("\n"):
-                        value = value + "\n"
-                    result[tag] = value
+                # Only convert booleans for known boolean fields
+                # (not for content/context/instructions which are string fields)
+                if tag in ("deleted", "auto_respond", "require_mention"):
+                    if value.lower() == "true":
+                        result[tag] = True
+                        continue
+                    elif value.lower() == "false":
+                        result[tag] = False
+                        continue
+                # Preserve trailing newline if original had one (for multiline content)
+                if child.text.rstrip(" \t").endswith("\n"):
+                    value = value + "\n"
+                result[tag] = value
 
     return result
 
@@ -185,12 +192,44 @@ def _parse_lines(lines_elem: ET.Element) -> list:
 # =============================================================================
 
 
+def _wrap_cdata(xml_str: str) -> str:
+    """Wrap content of specific elements in CDATA sections.
+
+    For elements in CDATA_ELEMENTS, if their text content contains characters
+    that would be escaped (<, >, &), wrap the content in a CDATA section instead.
+    This makes the XML more readable for humans and LLMs.
+    """
+
+    def replace_element(match: re.Match) -> str:
+        tag = match.group(1)
+        content = match.group(2)
+        # Unescape XML entities back to original chars for CDATA
+        unescaped = (
+            content.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+        )
+        # Only use CDATA if content had special chars (i.e., was escaped)
+        if unescaped != content:
+            return f"<{tag}><![CDATA[{unescaped}]]></{tag}>"
+        return match.group(0)  # No change needed
+
+    for tag in CDATA_ELEMENTS:
+        # Match opening tag, content (which may contain escaped entities), closing tag
+        # The content pattern matches any text that doesn't start a nested element with same tag
+        pattern = rf"<({tag})>([^<]*(?:&[^;]+;[^<]*)*)</{tag}>"
+        xml_str = re.sub(pattern, replace_element, xml_str)
+
+    return xml_str
+
+
 def _to_xml(data: dict) -> str:
     """Convert a dict to XML string."""
     root = ET.Element("review")
     _dict_to_xml(data, root)
     ET.indent(root, space="  ")
-    return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode")
+    xml_str = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(
+        root, encoding="unicode"
+    )
+    return _wrap_cdata(xml_str)
 
 
 def _dict_to_xml(data: dict, parent: ET.Element) -> None:
