@@ -83,3 +83,67 @@ Review (root object)
 - `linked-data/`: JSON-LD context and RDF vocabulary
 - `examples/`: Reference examples in YAML, JSON, XML formats
 - `python/`: Reference implementation (includes CLI tools via `[tools]` extra)
+- `.reviews/`: Active review files for this repository
+
+## Working with Reviews (.reviews/)
+
+The `.reviews/` directory contains OpenCodeReview files tracking issues, suggestions, and their resolutions for this project.
+
+### Reading Reviews
+
+**Important:** Before working on the spec, schemas, or related files, always read the review files first to understand known issues and avoid duplicating work.
+
+```bash
+ls .reviews/
+# Read each review file to understand open issues
+```
+
+### Adding Activities
+
+When fixing an issue, add a `resolved` activity to the appropriate review file:
+
+```yaml
+- id: <issue-id>-resolved
+  created: "<ISO-8601 timestamp>"
+  category: resolved
+  author:
+    name: <your name>
+    email: <your email>
+    # For AI agents:
+    type: agent
+    model: <model name>
+  content: |
+    <Description of how the issue was fixed>
+  addresses: [<issue-id>]
+```
+
+When finding new issues, append an `issue` activity:
+
+```yaml
+- id: <new-id>
+  created: "<ISO-8601 timestamp>"
+  category: issue
+  author:
+    type: agent
+    name: <agent name>
+    model: <model name>
+  content: |
+    **<Issue Title>**
+
+    **Location:** <file and line numbers>
+
+    <Description of the issue>
+
+    **Impact:** <Why this matters>
+  file: <path>
+  lines: [[<start>, <end>]]
+  severity: critical | error | warning | info
+```
+
+### Validation
+
+Always validate after editing:
+
+```bash
+cd python && uv run ocr-validate ../.reviews/<file>.yaml
+```
