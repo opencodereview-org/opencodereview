@@ -10,6 +10,25 @@ import yaml
 from .models import Review
 
 
+def _exclude_empty(data: dict) -> dict:
+    """Recursively remove None values and empty lists/dicts to minimize output size."""
+    result = {}
+    for key, value in data.items():
+        if value is None:
+            continue
+        if isinstance(value, list):
+            if len(value) == 0:
+                continue
+            result[key] = [_exclude_empty(v) if isinstance(v, dict) else v for v in value]
+        elif isinstance(value, dict):
+            cleaned = _exclude_empty(value)
+            if cleaned:
+                result[key] = cleaned
+        else:
+            result[key] = value
+    return result
+
+
 def load(source: str | Path | TextIO, format: str | None = None) -> Review:
     """Load a review from a file or file-like object.
 
@@ -51,8 +70,8 @@ def dump(review: Review, dest: str | Path | TextIO, format: str | None = None) -
         dest: File path or file-like object
         format: Format to use ('yaml', 'json'). Auto-detected from extension if not specified.
     """
-    # Use exclude_none but not exclude_unset to preserve auto-generated IDs
-    data = review.model_dump(exclude_none=True, mode="json")
+    # Exclude None, empty lists, empty dicts, and empty strings to minimize output size
+    data = _exclude_empty(review.model_dump(exclude_none=True, mode="json"))
 
     if isinstance(dest, (str, Path)):
         path = Path(dest)

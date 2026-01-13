@@ -425,6 +425,140 @@ class TestFormatConversion:
             assert orig_act.category == loaded_act.category
 
 
+class TestSerializationCompactness:
+    """Test that serialization excludes empty elements to minimize output size."""
+
+    def test_empty_lists_not_serialized_yaml(self, tmp_path: Path):
+        """Empty lists should not appear in YAML output."""
+        from opencodereview import Review, Comment, Author, dump
+
+        review = Review(
+            activities=[
+                Comment(
+                    category="note",
+                    content="test",
+                    author=Author(name="Alice"),
+                    # These are empty by default: replies=[], mentions=[], supersedes=[], addresses=[]
+                ),
+            ],
+        )
+
+        yaml_file = tmp_path / "test.yaml"
+        dump(review, yaml_file)
+        content = yaml_file.read_text()
+
+        assert "replies:" not in content
+        assert "mentions:" not in content
+        assert "supersedes:" not in content
+        assert "addresses:" not in content
+        assert "conditions:" not in content
+
+    def test_empty_lists_not_serialized_json(self, tmp_path: Path):
+        """Empty lists should not appear in JSON output."""
+        from opencodereview import Review, Comment, Author, dump
+
+        review = Review(
+            activities=[
+                Comment(
+                    category="note",
+                    content="test",
+                    author=Author(name="Alice"),
+                ),
+            ],
+        )
+
+        json_file = tmp_path / "test.json"
+        dump(review, json_file)
+        content = json_file.read_text()
+
+        assert '"replies"' not in content
+        assert '"mentions"' not in content
+        assert '"supersedes"' not in content
+        assert '"addresses"' not in content
+        assert '"conditions"' not in content
+
+    def test_empty_lists_not_serialized_xml(self, tmp_path: Path):
+        """Empty lists should not appear in XML output."""
+        from opencodereview import Review, Comment, Author, dump
+
+        review = Review(
+            activities=[
+                Comment(
+                    category="note",
+                    content="test",
+                    author=Author(name="Alice"),
+                ),
+            ],
+        )
+
+        xml_file = tmp_path / "test.xml"
+        dump(review, xml_file)
+        content = xml_file.read_text()
+
+        assert "<replies>" not in content
+        assert "<mentions>" not in content
+        assert "<supersedes>" not in content
+        assert "<addresses>" not in content
+        assert "<conditions>" not in content
+
+    def test_populated_lists_are_serialized(self, tmp_path: Path):
+        """Non-empty lists should still be serialized."""
+        from opencodereview import Review, Comment, Author, dump
+
+        review = Review(
+            activities=[
+                Comment(
+                    category="note",
+                    content="test",
+                    author=Author(name="Alice"),
+                    mentions=["@bob"],
+                    addresses=["c1"],
+                    replies=[
+                        Comment(category="note", content="reply"),
+                    ],
+                ),
+            ],
+        )
+
+        yaml_file = tmp_path / "test.yaml"
+        dump(review, yaml_file)
+        content = yaml_file.read_text()
+
+        assert "mentions:" in content
+        assert "addresses:" in content
+        assert "replies:" in content
+
+    def test_roundtrip_preserves_data_with_empty_exclusion(self, tmp_path: Path):
+        """Round-trip should still work correctly with empty element exclusion."""
+        from opencodereview import Review, Comment, Author, Location, dump, load
+
+        original = Review(
+            activities=[
+                Comment(
+                    id="c1",
+                    category="suggestion",
+                    content="Consider this change",
+                    author=Author(name="Alice"),
+                    location=Location(file="main.py", lines=[(10, 20)]),
+                    mentions=["@bob"],
+                ),
+            ],
+        )
+
+        # YAML roundtrip
+        yaml_file = tmp_path / "test.yaml"
+        dump(original, yaml_file)
+        reloaded = load(yaml_file)
+
+        assert reloaded.activities[0].id == "c1"
+        assert reloaded.activities[0].content == "Consider this change"
+        assert reloaded.activities[0].mentions == ["@bob"]
+        # Empty lists should be restored as defaults
+        assert reloaded.activities[0].replies == []
+        assert reloaded.activities[0].supersedes == []
+        assert reloaded.activities[0].addresses == []
+
+
 def assert_reviews_equal(r1: Review, r2: Review) -> None:
     """Assert two Review objects are semantically equal."""
     assert r1.version == r2.version
