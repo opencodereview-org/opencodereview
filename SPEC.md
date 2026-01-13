@@ -1,6 +1,6 @@
 # OpenCodeReview Specification
 
-**Version:** 1.0 (Draft)
+**Version:** 0.1 (Draft)
 
 ## Abstract
 
