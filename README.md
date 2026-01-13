@@ -126,6 +126,18 @@ JSON files can optionally include `@context` for JSON-LD/RDF compatibility.
 
 - [Python](python/) - Reference implementation with Pydantic models
 
+## Viewing Reviews
+
+```bash
+uv sync
+uv run reviews list .reviews
+uv run reviews list .reviews --filter open --full
+uv run reviews show .reviews/file.yaml --full
+uv run reviews show .reviews/file.yaml --id C1
+uv run reviews add .reviews/file.yaml           # Add new activity
+uv run reviews add .reviews/file.yaml C1        # Resolve issue C1
+```
+
 ## License
 
 MIT

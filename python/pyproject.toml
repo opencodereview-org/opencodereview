@@ -26,8 +26,11 @@ dependencies = [
 tools = [
     "click>=8.0",
     "jsonschema>=4.0",
+    "rich>=13.0",
+    "beaupy>=3.0",
 ]
 dev = [
+    "opencodereview[tools]",
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "hypothesis>=6.0",
@@ -36,6 +39,7 @@ dev = [
 [project.scripts]
 ocr-validate = "opencodereview.cli:validate_main"
 ocr-convert = "opencodereview.cli:convert_main"
+reviews = "opencodereview.cli:reviews_main"
 
 [tool.hatch.build.targets.wheel.force-include]
 "../schema/opencodereview.schema.json" = "opencodereview/schema/opencodereview.schema.json"

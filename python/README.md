@@ -42,6 +42,42 @@ review = Review(
 dump(review, "output.yaml")
 ```
 
+## CLI Tools
+
+Install with CLI tools:
+
+```bash
+uv add opencodereview[tools]
+```
+
+### Viewing Reviews
+
+List issues from review files:
+
+```bash
+reviews list .reviews                    # List all issues
+reviews list .reviews --filter open      # Only open issues
+reviews list .reviews --full             # Include full content
+```
+
+Show individual review details:
+
+```bash
+reviews show file.yaml                   # Summary view
+reviews show file.yaml --full            # All activities
+reviews show file.yaml --id C1           # Single issue thread
+```
+
+### Adding Activities
+
+Add new activities interactively:
+
+```bash
+reviews add file.yaml                    # New activity (guided prompts)
+reviews add file.yaml C1                 # Resolve/respond to existing activity
+reviews add newfile.yaml                 # Creates new review file
+```
+
 ## License
 
 MIT
