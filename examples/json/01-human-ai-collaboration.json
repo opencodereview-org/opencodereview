@@ -1,0 +1,81 @@
+{
+  "version": "0.1",
+  "subject": {
+    "type": "patch",
+    "provider": "github-pr",
+    "provider_ref": "42",
+    "url": "https://github.com/example/repo/pull/42",
+    "base": "main",
+    "head": "feature/add-auth"
+  },
+  "activities": [
+    {
+      "id": "ai-review-1",
+      "category": "issue",
+      "author": {
+        "type": "agent",
+        "name": "Claude",
+        "model": "sonnet"
+      },
+      "content": "Potential security issue: user input is passed directly to the SQL query without sanitization. This could allow SQL injection attacks.",
+      "file": "src/auth/login.py",
+      "lines": [[45, 48]],
+      "severity": "critical",
+      "mentions": ["@security-team"]
+    },
+    {
+      "id": "human-response-1",
+      "category": "note",
+      "author": {
+        "name": "Jane Developer",
+        "email": "jane@example.com"
+      },
+      "content": "Good catch! I'll use parameterized queries instead.",
+      "addresses": ["ai-review-1"]
+    },
+    {
+      "id": "ai-verify-1",
+      "category": "resolved",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "content": "Verified - the updated code uses parameterized queries correctly.",
+      "addresses": ["ai-review-1"]
+    },
+    {
+      "id": "ai-review-2",
+      "category": "suggestion",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "content": "Consider adding rate limiting to prevent brute force attacks. Something like 5 attempts per minute per IP would be reasonable.",
+      "file": "src/auth/login.py",
+      "lines": [[30, 30]]
+    },
+    {
+      "category": "assigned",
+      "author": {
+        "name": "Jane Developer"
+      },
+      "mentions": ["@security-team"],
+      "content": "Please review the rate limiting suggestion",
+      "addresses": ["ai-review-2"]
+    },
+    {
+      "category": "approved",
+      "author": {
+        "name": "Security Team"
+      },
+      "content": "LGTM - SQL injection fixed, rate limiting added",
+      "conditions": ["after CI passes"]
+    },
+    {
+      "category": "merged",
+      "author": {
+        "name": "Jane Developer"
+      }
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+# Real-world: Full review lifecycle with assignments, edits, and status changes
+version: "0.1"
+subject:
+  type: patch
+  provider: github-pr
+  provider_ref: "567"
+  repo: company/api
+  base: main
+  head: fix/memory-leak
+
+activities:
+  # Initial review request
+  - id: assign-1
+    category: assigned
+    author: {name: "PM Bot"}
+    content: "Auto-assigned based on CODEOWNERS"
+    mentions: ["@alice", "@bob"]
+
+  # First round of review
+  - id: c1
+    category: issue
+    author: {name: "Alice"}
+    content: "This looks like it might cause a race condition"
+    file: src/worker/pool.go
+    lines: [[120, 125]]
+    severity: warning
+
+  - id: c2
+    category: issue
+    author: {name: "Bob"}
+    content: "Missing mutex lock here"
+    file: src/worker/pool.go
+    lines: [[130, 130]]
+    severity: error
+
+  # Author updates the comment (supersedes)
+  - id: c2-updated
+    category: issue
+    author: {name: "Bob"}
+    content: |
+      Missing mutex lock here.
+
+      UPDATE: Actually, looking closer, this needs a RWMutex since
+      the read path is much more common than writes.
+    file: src/worker/pool.go
+    lines: [[130, 130]]
+    severity: error
+    supersedes: ["c2"]
+
+  # Changes requested
+  - id: v1
+    category: changes_requested
+    author: {name: "Alice"}
+    content: "Please address the race condition concerns"
+
+  # Author fixes issues
+  - id: fix-note
+    category: note
+    author: {name: "Developer"}
+    content: "Fixed both issues in commit abc123"
+    addresses: ["c1", "c2-updated"]
+
+  # Mark issues resolved
+  - id: r1
+    category: resolved
+    author: {name: "Alice"}
+    addresses: ["c1"]
+
+  - id: r2
+    category: resolved
+    author: {name: "Bob"}
+    addresses: ["c2-updated"]
+
+  # Re-assign for security review
+  - id: assign-2
+    category: assigned
+    author: {name: "Alice"}
+    content: "Adding security team for memory safety review"
+    mentions: ["@security-team"]
+
+  # Security team reviews
+  - id: sec-1
+    category: reviewed
+    author: {name: "Security Team"}
+    file: src/worker/pool.go
+    content: "Memory management looks correct after fixes"
+
+  # Someone retracts a comment (maybe posted by mistake)
+  - id: oops
+    category: note
+    author: {name: "Intern"}
+    content: "Is this Go? I thought we use Rust"
+
+  - id: oops-retract
+    category: retract
+    author: {name: "Intern"}
+    content: "Wrong PR, sorry!"
+    addresses: ["oops"]
+
+  # Final approval
+  - id: v2
+    category: approved
+    author: {name: "Alice"}
+
+  - id: v3
+    category: approved
+    author: {name: "Security Team"}
+    content: "No memory safety concerns"
+
+  # Merge
+  - category: merged
+    author: {name: "Developer"}
+    content: "Merged after all approvals"

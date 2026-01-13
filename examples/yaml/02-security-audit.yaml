@@ -1,0 +1,92 @@
+# Security Audit Example
+# Static code review without a PR/diff
+
+version: "0.1"
+subject:
+  type: audit
+  name: "Q1 2024 Security Audit"
+  scope:
+    - "src/auth/**"
+    - "src/api/**"
+  commit: "abcdef1234567890abcdef1234567890abcdef12"
+
+activities:
+  # Critical finding
+  - id: "finding-1"
+    category: security
+    author:
+      type: agent
+      name: Claude
+      model: opus
+    content: |
+      **SQL Injection Vulnerability**
+
+      User input from request.args is concatenated directly into SQL query.
+      An attacker could inject malicious SQL to access or modify data.
+
+      **Recommendation**: Use parameterized queries or an ORM.
+    file: src/api/users.py
+    lines: [[120, 125]]
+    severity: critical
+
+  # High severity finding
+  - id: "finding-2"
+    category: security
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Hardcoded API Key**
+
+      AWS API key is hardcoded in source. Should use environment variables
+      or a secrets manager.
+    file: src/api/storage.py
+    lines: [[15, 15]]
+    severity: error
+
+  # Informational finding
+  - id: "finding-3"
+    category: security
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Missing Rate Limiting**
+
+      Authentication endpoint has no rate limiting, making it vulnerable
+      to brute force attacks.
+    file: src/auth/login.py
+    lines: [[1, 1]]
+    severity: warning
+
+  # Positive finding
+  - id: "finding-4"
+    category: praise
+    author:
+      type: agent
+      name: Claude
+    content: "Password hashing uses bcrypt with appropriate work factor. Well done!"
+    file: src/auth/password.py
+    lines: [[30, 35]]
+
+  # Mark file as reviewed
+  - category: reviewed
+    author:
+      type: agent
+      name: Claude
+    file: src/auth/password.py
+    content: "Full security review complete, no issues found"
+
+  # Overall verdict
+  - category: changes_requested
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Security Audit Summary**
+
+      - 1 Critical issue (SQL injection)
+      - 1 High issue (hardcoded credentials)
+      - 1 Medium issue (rate limiting)
+
+      Must fix critical and high issues before deployment.

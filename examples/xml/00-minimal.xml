@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<review>
+  <version>0.1</version>
+  <activities>
+    <activity>
+      <category>note</category>
+      <content>This looks wrong</content>
+      <location>
+        <file>src/main.py</file>
+        <lines>
+          <range><start>42</start><end>42</end></range>
+        </lines>
+      </location>
+    </activity>
+  </activities>
+</review>

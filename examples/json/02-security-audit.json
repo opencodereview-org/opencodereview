@@ -1,0 +1,76 @@
+{
+  "version": "0.1",
+  "subject": {
+    "type": "audit",
+    "name": "Q1 2024 Security Audit",
+    "scope": ["src/auth/**", "src/api/**"],
+    "commit": "abcdef1234567890abcdef1234567890abcdef12"
+  },
+  "activities": [
+    {
+      "id": "finding-1",
+      "category": "security",
+      "author": {
+        "type": "agent",
+        "name": "Claude",
+        "model": "opus"
+      },
+      "content": "**SQL Injection Vulnerability**\n\nUser input from request.args is concatenated directly into SQL query. An attacker could inject malicious SQL to access or modify data.\n\n**Recommendation**: Use parameterized queries or an ORM.",
+      "file": "src/api/users.py",
+      "lines": [[120, 125]],
+      "severity": "critical"
+    },
+    {
+      "id": "finding-2",
+      "category": "security",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "content": "**Hardcoded API Key**\n\nAWS API key is hardcoded in source. Should use environment variables or a secrets manager.",
+      "file": "src/api/storage.py",
+      "lines": [[15, 15]],
+      "severity": "error"
+    },
+    {
+      "id": "finding-3",
+      "category": "security",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "content": "**Missing Rate Limiting**\n\nAuthentication endpoint has no rate limiting, making it vulnerable to brute force attacks.",
+      "file": "src/auth/login.py",
+      "lines": [[1, 1]],
+      "severity": "warning"
+    },
+    {
+      "id": "finding-4",
+      "category": "praise",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "content": "Password hashing uses bcrypt with appropriate work factor. Well done!",
+      "file": "src/auth/password.py",
+      "lines": [[30, 35]]
+    },
+    {
+      "category": "reviewed",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "file": "src/auth/password.py",
+      "content": "Full security review complete, no issues found"
+    },
+    {
+      "category": "changes_requested",
+      "author": {
+        "type": "agent",
+        "name": "Claude"
+      },
+      "content": "**Security Audit Summary**\n\n- 1 Critical issue (SQL injection)\n- 1 High issue (hardcoded credentials)\n- 1 Medium issue (rate limiting)\n\nMust fix critical and high issues before deployment."
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+@prefix ocr: <https://opencodereview.org/vocab#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Ontology metadata
+ocr: a <http://www.w3.org/2002/07/owl#Ontology> ;
+    rdfs:label "OpenCodeReview Vocabulary" ;
+    rdfs:comment "Vocabulary for portable code review specifications" ;
+    dcterms:created "2024-01-01"^^xsd:date .
+
+# Classes
+ocr:Review a rdfs:Class ;
+    rdfs:label "Review" ;
+    rdfs:comment "A code review containing activities" .
+
+ocr:Activity a rdfs:Class ;
+    rdfs:label "Activity" ;
+    rdfs:comment "An activity within a code review" .
+
+ocr:Subject a rdfs:Class ;
+    rdfs:label "Subject" ;
+    rdfs:comment "What is being reviewed" .
+
+ocr:Author a rdfs:Class ;
+    rdfs:label "Author" ;
+    rdfs:comment "Author of an activity (human or agent)" .
+
+ocr:Location a rdfs:Class ;
+    rdfs:label "Location" ;
+    rdfs:comment "Code location reference" .
+
+ocr:Selector a rdfs:Class ;
+    rdfs:label "Selector" ;
+    rdfs:comment "Semantic code element reference" .
+
+ocr:AgentContext a rdfs:Class ;
+    rdfs:label "Agent Context" ;
+    rdfs:comment "Configuration for AI agents" .
+
+# Activity Categories
+ocr:Note a ocr:Activity ;
+    rdfs:label "Note" .
+
+ocr:Suggestion a ocr:Activity ;
+    rdfs:label "Suggestion" .
+
+ocr:Issue a ocr:Activity ;
+    rdfs:label "Issue" .
+
+ocr:Praise a ocr:Activity ;
+    rdfs:label "Praise" .
+
+ocr:Question a ocr:Activity ;
+    rdfs:label "Question" .
+
+ocr:Task a ocr:Activity ;
+    rdfs:label "Task" .
+
+ocr:Security a ocr:Activity ;
+    rdfs:label "Security Finding" .
+
+ocr:Reviewed a ocr:Activity ;
+    rdfs:label "Reviewed Mark" .
+
+ocr:Ignored a ocr:Activity ;
+    rdfs:label "Ignored Mark" .
+
+ocr:Resolved a ocr:Activity ;
+    rdfs:label "Resolution" .
+
+ocr:Retract a ocr:Activity ;
+    rdfs:label "Retraction" .
+
+ocr:Mention a ocr:Activity ;
+    rdfs:label "Mention" .
+
+ocr:Assigned a ocr:Activity ;
+    rdfs:label "Assignment" .
+
+ocr:Closed a ocr:Activity ;
+    rdfs:label "Closed" .
+
+ocr:Merged a ocr:Activity ;
+    rdfs:label "Merged" .
+
+ocr:Reopened a ocr:Activity ;
+    rdfs:label "Reopened" .
+
+ocr:Approved a ocr:Activity ;
+    rdfs:label "Approved" .
+
+ocr:ChangesRequested a ocr:Activity ;
+    rdfs:label "Changes Requested" .
+
+ocr:Commented a ocr:Activity ;
+    rdfs:label "Commented" .
+
+ocr:Pending a ocr:Activity ;
+    rdfs:label "Pending" .
+
+# Properties
+ocr:version a rdf:Property ;
+    rdfs:label "version" ;
+    rdfs:domain ocr:Review ;
+    rdfs:range xsd:string .
+
+ocr:activities a rdf:Property ;
+    rdfs:label "activities" ;
+    rdfs:domain ocr:Review ;
+    rdfs:range ocr:Activity .
+
+ocr:category a rdf:Property ;
+    rdfs:label "category" ;
+    rdfs:domain ocr:Activity ;
+    rdfs:range xsd:string .
+
+ocr:file a rdf:Property ;
+    rdfs:label "file" ;
+    rdfs:domain ocr:Location ;
+    rdfs:range xsd:string .
+
+ocr:lines a rdf:Property ;
+    rdfs:label "lines" ;
+    rdfs:domain ocr:Location .
+
+ocr:severity a rdf:Property ;
+    rdfs:label "severity" ;
+    rdfs:domain ocr:Activity ;
+    rdfs:range xsd:string .
+
+ocr:replies a rdf:Property ;
+    rdfs:label "replies" ;
+    rdfs:domain ocr:Activity ;
+    rdfs:range ocr:Activity .
+
+ocr:mentions a rdf:Property ;
+    rdfs:label "mentions" ;
+    rdfs:domain ocr:Activity ;
+    rdfs:range xsd:string .
+
+ocr:addresses a rdf:Property ;
+    rdfs:label "addresses" ;
+    rdfs:domain ocr:Activity .
+
+ocr:conditions a rdf:Property ;
+    rdfs:label "conditions" ;
+    rdfs:domain ocr:Activity ;
+    rdfs:range xsd:string .
+
+ocr:model a rdf:Property ;
+    rdfs:label "model" ;
+    rdfs:domain ocr:Author ;
+    rdfs:range xsd:string .

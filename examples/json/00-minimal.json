@@ -1,0 +1,11 @@
+{
+  "version": "0.1",
+  "activities": [
+    {
+      "category": "note",
+      "content": "This looks wrong",
+      "file": "src/main.py",
+      "lines": [[42, 42]]
+    }
+  ]
+}

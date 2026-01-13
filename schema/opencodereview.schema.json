@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencodereview.org/schema/opencodereview.schema.json",
+  "title": "OpenCodeReview",
+  "description": "A portable, tool-agnostic code review specification",
+  "type": "object",
+  "required": ["version", "activities"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Specification version",
+      "const": "0.1"
+    },
+    "subject": {
+      "$ref": "#/$defs/Subject"
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Activity"
+      }
+    },
+    "agent_context": {
+      "$ref": "#/$defs/AgentContext"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "Subject": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["patch", "commit", "file", "directory", "audit", "snapshot"]
+        },
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "tree": { "type": "string" },
+        "blob": { "type": "string" },
+        "checksum": { "type": "string" },
+        "branch": { "type": "string" },
+        "tag": { "type": "string" },
+        "ref": { "type": "string" },
+        "provider": {
+          "type": "string",
+          "enum": ["github-pr", "gitlab-mr", "gerrit", "phabricator", "diff"]
+        },
+        "provider_ref": { "type": "string" },
+        "repo": { "type": "string" },
+        "base": { "type": "string" },
+        "head": { "type": "string" },
+        "base_commit": { "type": "string" },
+        "head_commit": { "type": "string" },
+        "path": { "type": "string" },
+        "scope": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Author": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "type": { "type": "string", "enum": ["agent"] },
+        "model": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "LineRange": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "Selector": {
+      "type": "object",
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "type": "string" },
+        "path": { "type": "string" }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "properties": {
+        "file": { "type": "string" },
+        "lines": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LineRange" }
+        },
+        "selector": { "$ref": "#/$defs/Selector" },
+        "deleted": { "type": "boolean" },
+        "column": { "type": "integer", "minimum": 1 },
+        "column_end": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "Activity": {
+      "type": "object",
+      "required": ["category"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "author": { "$ref": "#/$defs/Author" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "note", "suggestion", "issue", "praise", "question", "task", "security",
+            "reviewed", "ignored",
+            "resolved",
+            "retract",
+            "mention", "assigned",
+            "closed", "merged", "reopened",
+            "approved", "changes_requested", "commented", "pending"
+          ]
+        },
+        "content": { "type": "string" },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "critical"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "file": { "type": "string" },
+        "lines": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LineRange" }
+        },
+        "location": { "$ref": "#/$defs/Location" },
+        "deleted": { "type": "boolean" },
+        "column": { "type": "integer", "minimum": 1 },
+        "column_end": { "type": "integer", "minimum": 1 },
+        "selector": { "$ref": "#/$defs/Selector" },
+        "context": { "type": "string" },
+        "replies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Activity" }
+        },
+        "created": { "type": "string", "format": "date-time" },
+        "supersedes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "addresses": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "mentions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "AgentContext": {
+      "type": "object",
+      "properties": {
+        "instructions": { "type": "string" },
+        "diff": { "type": "string" },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "auto_respond": { "type": "boolean" },
+            "require_mention": { "type": "boolean" },
+            "model_hints": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

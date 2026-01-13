@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<review>
+  <version>0.1</version>
+  <subject>
+    <type>patch</type>
+    <provider>github-pr</provider>
+    <provider_ref>42</provider_ref>
+    <url>https://github.com/example/repo/pull/42</url>
+    <base>main</base>
+    <head>feature/add-auth</head>
+  </subject>
+  <activities>
+    <activity>
+      <id>ai-review-1</id>
+      <category>issue</category>
+      <author>
+        <type>agent</type>
+        <name>Claude</name>
+        <model>sonnet</model>
+      </author>
+      <content>Potential security issue: user input is passed directly to the SQL query without sanitization. This could allow SQL injection attacks.</content>
+      <location>
+        <file>src/auth/login.py</file>
+        <lines>
+          <range><start>45</start><end>48</end></range>
+        </lines>
+      </location>
+      <severity>critical</severity>
+      <mentions>
+        <mention>@security-team</mention>
+      </mentions>
+    </activity>
+    <activity>
+      <id>human-response-1</id>
+      <category>note</category>
+      <author>
+        <name>Jane Developer</name>
+        <email>jane@example.com</email>
+      </author>
+      <content>Good catch! I'll use parameterized queries instead.</content>
+      <addresses>
+        <id>ai-review-1</id>
+      </addresses>
+    </activity>
+    <activity>
+      <id>ai-verify-1</id>
+      <category>resolved</category>
+      <author>
+        <type>agent</type>
+        <name>Claude</name>
+      </author>
+      <content>Verified - the updated code uses parameterized queries correctly.</content>
+      <addresses>
+        <id>ai-review-1</id>
+      </addresses>
+    </activity>
+    <activity>
+      <id>ai-review-2</id>
+      <category>suggestion</category>
+      <author>
+        <type>agent</type>
+        <name>Claude</name>
+      </author>
+      <content>Consider adding rate limiting to prevent brute force attacks. Something like 5 attempts per minute per IP would be reasonable.</content>
+      <location>
+        <file>src/auth/login.py</file>
+        <lines>
+          <range><start>30</start><end>30</end></range>
+        </lines>
+      </location>
+    </activity>
+    <activity>
+      <category>assigned</category>
+      <author>
+        <name>Jane Developer</name>
+      </author>
+      <content>Please review the rate limiting suggestion</content>
+      <mentions>
+        <mention>@security-team</mention>
+      </mentions>
+      <addresses>
+        <id>ai-review-2</id>
+      </addresses>
+    </activity>
+    <activity>
+      <category>approved</category>
+      <author>
+        <name>Security Team</name>
+      </author>
+      <content>LGTM - SQL injection fixed, rate limiting added</content>
+      <conditions>
+        <condition>after CI passes</condition>
+      </conditions>
+    </activity>
+    <activity>
+      <category>merged</category>
+      <author>
+        <name>Jane Developer</name>
+      </author>
+    </activity>
+  </activities>
+</review>

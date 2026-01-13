@@ -1,0 +1,98 @@
+# Real-world: Architecture review of a module
+version: "0.1"
+subject:
+  type: directory
+  path: src/core/
+  name: "Core Module Architecture Review"
+  commit: "deadbeef1234567890abcdef1234567890deadbe"
+
+activities:
+  - id: arch-1
+    category: issue
+    author:
+      type: agent
+      name: Claude
+      model: opus
+    content: |
+      **Circular Dependency Detected**
+
+      `core/engine.go` imports `core/cache.go` which imports `core/engine.go`.
+      This creates a circular dependency that will cause compilation issues
+      and makes the code harder to test.
+
+      **Recommendation**: Extract the shared interface to a separate file
+      or use dependency injection.
+    file: src/core/
+    severity: error
+
+  - id: arch-2
+    category: suggestion
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Consider Splitting the Engine**
+
+      The Engine struct has grown to handle 15+ responsibilities including:
+      - Request routing
+      - Caching
+      - Rate limiting
+      - Metrics
+      - Health checks
+
+      This violates the Single Responsibility Principle. Consider extracting
+      these into separate services with clear interfaces.
+    file: src/core/engine.go
+    severity: warning
+
+  - id: arch-3
+    category: praise
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Good Use of Interfaces**
+
+      The Store interface in `store.go` is well-designed:
+      - Small, focused interface
+      - Easy to mock for testing
+      - Allows multiple implementations
+    file: src/core/store.go
+
+  - id: arch-4
+    category: question
+    author: {name: "Tech Lead"}
+    content: "Is there a pattern we should follow for the engine refactoring?"
+    addresses: ["arch-2"]
+    mentions: ["@agent"]
+    replies:
+      - category: note
+        author:
+          type: agent
+          name: Claude
+        content: |
+          I'd recommend the **Facade Pattern** here:
+
+          1. Keep Engine as a thin facade that coordinates between services
+          2. Extract each responsibility into its own service:
+             - `RouterService`
+             - `CacheService`
+             - `RateLimiter`
+             - `MetricsCollector`
+             - `HealthChecker`
+          3. Inject these services into Engine via constructor
+
+          This maintains the simple API while improving testability.
+
+  - category: changes_requested
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Architecture Review Summary**
+
+      - 1 Error: Circular dependency must be fixed
+      - 1 Warning: Engine needs refactoring (can be done incrementally)
+      - 1 Positive: Store interface is well designed
+
+      Recommend addressing the circular dependency before merging.

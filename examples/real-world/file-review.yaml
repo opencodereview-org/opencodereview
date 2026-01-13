@@ -1,0 +1,82 @@
+# Real-world: Detailed review of a single file
+version: "0.1"
+subject:
+  type: file
+  path: src/auth/jwt.py
+  blob: "1234567890abcdef1234567890abcdef12345678"
+
+activities:
+  - id: f1
+    category: security
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Weak JWT Secret**
+
+      The JWT secret is only 16 characters. For HS256, NIST recommends
+      at least 256 bits (32 bytes) of entropy.
+    lines: [[15, 15]]
+    severity: error
+    context: |
+      JWT_SECRET = os.getenv("JWT_SECRET", "default-secret")
+
+  - id: f2
+    category: issue
+    author:
+      type: agent
+      name: Claude
+    content: |
+      **Missing Token Expiration Check**
+
+      The `verify_token` function doesn't validate the `exp` claim.
+      Tokens could be used indefinitely after issuance.
+    lines: [[45, 55]]
+    severity: error
+
+  - id: f3
+    category: suggestion
+    author:
+      type: agent
+      name: Claude
+    content: |
+      Consider using `python-jose` instead of `PyJWT`. It has:
+      - Better algorithm support
+      - Built-in JWK handling
+      - More active maintenance
+    lines: [[1, 5]]
+
+  - id: f4
+    category: note
+    author:
+      type: agent
+      name: Claude
+    content: |
+      The token payload structure is non-standard. Consider using
+      registered claims like `sub` for user ID and `iat` for issued-at.
+    lines: [[25, 35]]
+
+  - id: f5
+    category: praise
+    author:
+      type: agent
+      name: Claude
+    content: "Good practice: using constant-time comparison for token validation"
+    lines: [[60, 62]]
+
+  # Mark sections as reviewed
+  - category: reviewed
+    author:
+      type: agent
+      name: Claude
+    lines: [[1, 70]]
+    content: "Complete review of jwt.py"
+
+  - category: changes_requested
+    author:
+      type: agent
+      name: Claude
+    content: |
+      2 security issues must be addressed:
+      1. Increase JWT secret length
+      2. Add token expiration validation

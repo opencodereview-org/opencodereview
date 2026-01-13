@@ -1,0 +1,93 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "ocr": "https://opencodereview.org/vocab#",
+    "schema": "https://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "prov": "http://www.w3.org/ns/prov#",
+
+    "version": "ocr:version",
+    "activities": {
+      "@id": "ocr:activities",
+      "@container": "@list"
+    },
+    "subject": "ocr:subject",
+    "agent_context": "ocr:agentContext",
+    "metadata": "ocr:metadata",
+
+    "id": "@id",
+    "type": "@type",
+    "category": "ocr:category",
+    "content": "schema:text",
+    "author": "dcterms:creator",
+    "created": {
+      "@id": "dcterms:created",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+
+    "name": "schema:name",
+    "email": "schema:email",
+    "model": "ocr:model",
+
+    "file": "ocr:file",
+    "lines": "ocr:lines",
+    "location": "ocr:location",
+    "selector": "ocr:selector",
+    "deleted": "ocr:deleted",
+    "column": "ocr:column",
+    "column_end": "ocr:columnEnd",
+    "context": "ocr:codeContext",
+
+    "replies": {
+      "@id": "ocr:replies",
+      "@container": "@list"
+    },
+    "mentions": {
+      "@id": "ocr:mentions",
+      "@container": "@set"
+    },
+    "supersedes": {
+      "@id": "prov:wasRevisionOf",
+      "@container": "@set"
+    },
+    "addresses": {
+      "@id": "ocr:addresses",
+      "@container": "@set"
+    },
+
+    "severity": "ocr:severity",
+    "conditions": {
+      "@id": "ocr:conditions",
+      "@container": "@list"
+    },
+
+    "provider": "ocr:provider",
+    "provider_ref": "ocr:providerRef",
+    "repo": "ocr:repo",
+    "url": "schema:url",
+    "commit": "ocr:commit",
+    "tree": "ocr:tree",
+    "blob": "ocr:blob",
+    "checksum": "ocr:checksum",
+    "branch": "ocr:branch",
+    "tag": "ocr:tag",
+    "ref": "ocr:ref",
+    "base": "ocr:base",
+    "head": "ocr:head",
+    "base_commit": "ocr:baseCommit",
+    "head_commit": "ocr:headCommit",
+    "path": "ocr:path",
+    "scope": {
+      "@id": "ocr:scope",
+      "@container": "@set"
+    },
+    "timestamp": {
+      "@id": "ocr:timestamp",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+
+    "instructions": "ocr:instructions",
+    "diff": "ocr:diff",
+    "settings": "ocr:settings"
+  }
+}

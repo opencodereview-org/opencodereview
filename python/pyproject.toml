@@ -1,0 +1,57 @@
+[project]
+name = "opencodereview"
+version = "0.1.0"
+description = "Python library for OpenCodeReview - portable code review specification"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "OpenCodeReview Contributors"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+tools = [
+    "click>=8.0",
+    "jsonschema>=4.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "hypothesis>=6.0",
+]
+
+[project.scripts]
+ocr-validate = "opencodereview.cli:validate_main"
+ocr-convert = "opencodereview.cli:convert_main"
+
+[tool.hatch.build.targets.wheel.force-include]
+"../schema/opencodereview.schema.json" = "opencodereview/schema/opencodereview.schema.json"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/opencodereview"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.150.1",
+]

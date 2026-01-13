@@ -1,0 +1,63 @@
+# Real-world: PR code review with threaded discussion
+version: "0.1"
+subject:
+  type: patch
+  provider: github-pr
+  provider_ref: "1234"
+  repo: acme/backend
+  url: "https://github.com/acme/backend/pull/1234"
+  base: main
+  head: feature/user-preferences
+  base_commit: "a1b2c3d4e5f6789012345678901234567890abcd"
+  head_commit: "f6e5d4c3b2a1098765432109876543210fedcba"
+
+activities:
+  - id: review-start
+    category: note
+    author: {name: "Alice Chen"}
+    content: "Starting review of user preferences feature"
+
+  - id: c1
+    category: issue
+    author: {name: "Alice Chen"}
+    content: "This variable name is unclear. What does `up` mean?"
+    file: src/preferences/handler.go
+    lines: [[42, 42]]
+    severity: info
+    replies:
+      - id: c1-r1
+        category: note
+        author: {name: "Bob Smith"}
+        content: "Good point, it stands for UserPreferences. I'll rename it."
+      - id: c1-r2
+        category: resolved
+        author: {name: "Bob Smith"}
+        content: "Renamed to `userPrefs` in latest commit"
+
+  - id: c2
+    category: suggestion
+    author: {name: "Alice Chen"}
+    content: |
+      Consider using a context timeout here instead of relying on the
+      HTTP timeout. It gives you more control over cancellation.
+    file: src/preferences/handler.go
+    lines: [[55, 60]]
+    context: |
+      func (h *Handler) GetPreferences(w http.ResponseWriter, r *http.Request) {
+          prefs, err := h.store.Get(r.Context(), getUserID(r))
+          // ...
+      }
+
+  - id: c3
+    category: praise
+    author: {name: "Alice Chen"}
+    content: "Nice use of the builder pattern here!"
+    file: src/preferences/builder.go
+    lines: [[10, 45]]
+
+  - category: approved
+    author: {name: "Alice Chen"}
+    content: "LGTM after addressing the naming issue"
+
+  - category: merged
+    author: {name: "Bob Smith"}

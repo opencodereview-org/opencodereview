@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://opencodereview.org/schema"
+           xmlns:ocr="https://opencodereview.org/schema"
+           elementFormDefault="qualified">
+
+  <!-- Root element -->
+  <xs:element name="review" type="ocr:ReviewType"/>
+
+  <xs:complexType name="ReviewType">
+    <xs:sequence>
+      <xs:element name="version" type="xs:string"/>
+      <xs:element name="subject" type="ocr:SubjectType" minOccurs="0"/>
+      <xs:element name="activities" type="ocr:ActivitiesType"/>
+      <xs:element name="agent_context" type="ocr:AgentContextType" minOccurs="0"/>
+      <xs:element name="metadata" type="xs:anyType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Category enum -->
+  <xs:simpleType name="CategoryType">
+    <xs:restriction base="xs:string">
+      <!-- Commentary -->
+      <xs:enumeration value="note"/>
+      <xs:enumeration value="suggestion"/>
+      <xs:enumeration value="issue"/>
+      <xs:enumeration value="praise"/>
+      <xs:enumeration value="question"/>
+      <xs:enumeration value="task"/>
+      <xs:enumeration value="security"/>
+      <!-- Review marks -->
+      <xs:enumeration value="reviewed"/>
+      <xs:enumeration value="ignored"/>
+      <!-- Resolution -->
+      <xs:enumeration value="resolved"/>
+      <!-- Retraction -->
+      <xs:enumeration value="retract"/>
+      <!-- Attention & Assignment -->
+      <xs:enumeration value="mention"/>
+      <xs:enumeration value="assigned"/>
+      <!-- Status transitions -->
+      <xs:enumeration value="closed"/>
+      <xs:enumeration value="merged"/>
+      <xs:enumeration value="reopened"/>
+      <!-- Verdicts -->
+      <xs:enumeration value="approved"/>
+      <xs:enumeration value="changes_requested"/>
+      <xs:enumeration value="commented"/>
+      <xs:enumeration value="pending"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Author -->
+  <xs:complexType name="AuthorType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="email" type="xs:string" minOccurs="0"/>
+      <xs:element name="type" type="xs:string" minOccurs="0"/>
+      <xs:element name="model" type="xs:string" minOccurs="0"/>
+      <xs:element name="version" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Line range -->
+  <xs:complexType name="RangeType">
+    <xs:sequence>
+      <xs:element name="start" type="xs:positiveInteger"/>
+      <xs:element name="end" type="xs:positiveInteger"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Lines array -->
+  <xs:complexType name="LinesType">
+    <xs:sequence>
+      <xs:element name="range" type="ocr:RangeType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Location -->
+  <xs:complexType name="LocationType">
+    <xs:sequence>
+      <xs:element name="file" type="xs:string" minOccurs="0"/>
+      <xs:element name="lines" type="ocr:LinesType" minOccurs="0"/>
+      <xs:element name="selector" type="ocr:SelectorType" minOccurs="0"/>
+      <xs:element name="deleted" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="column" type="xs:positiveInteger" minOccurs="0"/>
+      <xs:element name="column_end" type="xs:positiveInteger" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Selector -->
+  <xs:complexType name="SelectorType">
+    <xs:sequence>
+      <xs:element name="type" type="xs:string"/>
+      <xs:element name="path" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Activity -->
+  <xs:complexType name="ActivityType">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string" minOccurs="0"/>
+      <xs:element name="author" type="ocr:AuthorType" minOccurs="0"/>
+      <xs:element name="category" type="ocr:CategoryType"/>
+      <xs:element name="content" type="xs:string" minOccurs="0"/>
+      <xs:element name="severity" type="ocr:SeverityType" minOccurs="0"/>
+      <xs:element name="conditions" type="ocr:ConditionsType" minOccurs="0"/>
+      <xs:element name="location" type="ocr:LocationType" minOccurs="0"/>
+      <xs:element name="context" type="xs:string" minOccurs="0"/>
+      <xs:element name="replies" type="ocr:ActivitiesType" minOccurs="0"/>
+      <xs:element name="created" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="supersedes" type="ocr:IdListType" minOccurs="0"/>
+      <xs:element name="addresses" type="ocr:IdListType" minOccurs="0"/>
+      <xs:element name="mentions" type="ocr:MentionsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ID list -->
+  <xs:complexType name="IdListType">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Activities array -->
+  <xs:complexType name="ActivitiesType">
+    <xs:sequence>
+      <xs:element name="activity" type="ocr:ActivityType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Severity -->
+  <xs:simpleType name="SeverityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="info"/>
+      <xs:enumeration value="warning"/>
+      <xs:enumeration value="error"/>
+      <xs:enumeration value="critical"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Conditions -->
+  <xs:complexType name="ConditionsType">
+    <xs:sequence>
+      <xs:element name="condition" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Mentions -->
+  <xs:complexType name="MentionsType">
+    <xs:sequence>
+      <xs:element name="mention" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Subject -->
+  <xs:complexType name="SubjectType">
+    <xs:sequence>
+      <xs:element name="type" type="ocr:SubjectTypeEnum"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="url" type="xs:anyURI" minOccurs="0"/>
+      <xs:element name="commit" type="xs:string" minOccurs="0"/>
+      <xs:element name="tree" type="xs:string" minOccurs="0"/>
+      <xs:element name="blob" type="xs:string" minOccurs="0"/>
+      <xs:element name="checksum" type="xs:string" minOccurs="0"/>
+      <xs:element name="branch" type="xs:string" minOccurs="0"/>
+      <xs:element name="tag" type="xs:string" minOccurs="0"/>
+      <xs:element name="ref" type="xs:string" minOccurs="0"/>
+      <xs:element name="provider" type="xs:string" minOccurs="0"/>
+      <xs:element name="provider_ref" type="xs:string" minOccurs="0"/>
+      <xs:element name="repo" type="xs:string" minOccurs="0"/>
+      <xs:element name="base" type="xs:string" minOccurs="0"/>
+      <xs:element name="head" type="xs:string" minOccurs="0"/>
+      <xs:element name="base_commit" type="xs:string" minOccurs="0"/>
+      <xs:element name="head_commit" type="xs:string" minOccurs="0"/>
+      <xs:element name="path" type="xs:string" minOccurs="0"/>
+      <xs:element name="scope" type="ocr:ScopeType" minOccurs="0"/>
+      <xs:element name="timestamp" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="SubjectTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="patch"/>
+      <xs:enumeration value="commit"/>
+      <xs:enumeration value="file"/>
+      <xs:enumeration value="directory"/>
+      <xs:enumeration value="audit"/>
+      <xs:enumeration value="snapshot"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ScopeType">
+    <xs:sequence>
+      <xs:element name="pattern" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Agent Context -->
+  <xs:complexType name="AgentContextType">
+    <xs:sequence>
+      <xs:element name="instructions" type="xs:string" minOccurs="0"/>
+      <xs:element name="diff" type="xs:string" minOccurs="0"/>
+      <xs:element name="settings" type="xs:anyType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
